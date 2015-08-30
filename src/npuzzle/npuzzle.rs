@@ -2,6 +2,7 @@ use rand::Rng;
 use rand;
 use std::fmt::{Formatter, Display, Error};
 use npuzzle::tile::{Tile};
+use npuzzle::errors::{IncorrectBoardError, ParseError};
 use std::path::Path;
 use std::error;
 use std::fs::File;
@@ -59,7 +60,7 @@ impl NPuzzle
 	}
 
 	pub fn new_from_file(file_name: &str)
-			-> Result<NPuzzle, &'static str> {
+			-> Result<NPuzzle, ParseError> {
 		let path = Path::new(&file_name);
 		let display = path.display();
 
@@ -98,10 +99,13 @@ impl NPuzzle
 		self.size
 	}
 
-	pub fn is_correct(&self) -> Result<(), &'static str> {
+	pub fn is_correct(&self) -> Result<(), IncorrectBoardError> {
 		// test number of tile
 		if self.tiles.len() != self.nb_tile() as usize {
-			return Err("NPuzzle board incorrect : not the required number of tile");
+			return Err(IncorrectBoardError::WrongNumberOfTile{
+				found:		self.tiles.len(),
+				expected:	self.nb_tile(),
+			});
 		}
 
 		// test if the tiles are the one expected
@@ -110,11 +114,11 @@ impl NPuzzle
 		for i in (0..self.nb_tile()) {
 			let tile_nbr = self.tiles[i as usize].to_nbr();
 			if tile_nbr as usize > self.nb_tile() - 1 {
-				return Err("NPuzzle board incorrect : tile number out of bound");
+				return Err(IncorrectBoardError::OutOfBoundTile{tile: tile_nbr});
 			}
 			let (_, already_in) = used_numbers[tile_nbr as usize];
 			if already_in {
-				return Err("NPuzzle board incorrect : duplicated tile");
+				return Err(IncorrectBoardError::DuplicatedTile{tile: tile_nbr});
 			}
 			used_numbers[tile_nbr as usize] = (tile_nbr, true);
 		}

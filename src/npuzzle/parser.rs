@@ -1,21 +1,16 @@
 use tools::tokenizer::{Token, Tokenizer, TokenInfo};
 use npuzzle::tile::{Tile};
 use tools::fn_str;
+use npuzzle::errors::{IncorrectBoardError, ParseError};
 use npuzzle::{NPuzzle};
 
 impl NPuzzle {
-	fn split_one_line(line: &str, size: usize) -> Option<Vec<i32>> {
-		let ints : Vec<i32> = line
-				.split(' ')
+	fn split_one_line(line: &str, size: usize) -> Vec<i32> {
+		line.split(' ')
 				.map(|x| x.trim())
 				.filter(|x| x.len() > 0)
 				.map(|x| {fn_str::atoi(x).unwrap()})
-				.collect();
-		if ints.len() == size {
-			Some(ints)
-		} else {
-			None
-		}
+				.collect()
 	}
 
 	fn split_into_lines(to_parse: &String) -> Vec<&str> {
@@ -27,28 +22,20 @@ impl NPuzzle {
 	}
 
 	// pub fn parse(size: i32, to_parse: &String)
-	// 		-> Result<NPuzzle, &'static str> {
+	// 		-> Result<NPuzzle, ParseError> {
 
 	// }
 
 	/// Parse a string which describe the inital state of the npuzzle board.
 	fn execute_parse(size: usize, lines: &Vec<&str>)
-			-> Result<NPuzzle, &'static str> {
+			-> Result<NPuzzle, ParseError> {
 		let mut to_return = NPuzzle::new(size);
-		if lines.len() != size as usize {
-			return Err("Error parsing: wrong number of line");
-		}
 
 		// split lines into integer
 		for line in lines {
 			let ints = NPuzzle::split_one_line(line, size);
-			if ints.is_some() {
-				let mut tiles = ints.unwrap().iter()
-						.map(|x| Tile::from_nbr(*x)).collect();
-				to_return.append_tiles(&mut tiles);
-			} else {
-				return Err("Error parsing: one line is too short.");
-			}
+			let mut tiles = ints.iter().map(|x| Tile::from_nbr(*x)).collect();
+			to_return.append_tiles(&mut tiles);
 		}
 
 		// test the validity of the parsed board
@@ -56,17 +43,17 @@ impl NPuzzle {
 		if is_correct.is_ok() {
 			Ok(to_return)
 		} else {
-			Err(is_correct.err().unwrap())
+			Err(ParseError::IncorrectBoard(is_correct.err().unwrap()))
 		}
 	}
 
 	/// This function also parse the size of the NPuzzle.
 	pub fn parse_with_size(to_parse: &String)
-			-> Result<NPuzzle, &'static str> {
+			-> Result<NPuzzle, ParseError> {
 		let lines = NPuzzle::split_into_lines(to_parse);
 		let size_err = fn_str::atoi::<usize>(lines[0]);
 		if size_err.is_err() {
-			return Err("Error parsing size into int");
+			return Err(ParseError::ParseSize);
 		}
 		let lines_reduce = (&lines[1..]).to_vec();
 		NPuzzle::execute_parse(size_err.unwrap(), &lines_reduce)
