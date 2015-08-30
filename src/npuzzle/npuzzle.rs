@@ -6,22 +6,21 @@ use std::path::Path;
 use std::error;
 use std::fs::File;
 use std::io::prelude::*;
-use npuzzle::parser;
 
 /// This structure represent a NPuzzle game instance.
 #[derive(Debug)]
 pub struct NPuzzle
 {
-	size:	i32,
+	size:	usize,
 	tiles:	Vec<Tile>,
 }
 
 impl NPuzzle
 {
-	pub fn new(size: i32) -> NPuzzle {
+	pub fn new(size: usize) -> NPuzzle {
 		NPuzzle{
 			size:	size,
-			tiles:	Vec:: with_capacity((size * size) as usize),
+			tiles:	Vec:: with_capacity((size * size)),
 		}
 	}
 
@@ -43,14 +42,14 @@ impl NPuzzle
 	}
 
 	/// Return a NPuzzle which values as been set randomly
-	pub fn new_random(size: i32) -> NPuzzle {
+	pub fn new_random(size: usize) -> NPuzzle {
 		let mut to_return = NPuzzle::new(size);
 
 		// This array contain all of the number to put in the board, and
 		// associate a boolean to say if the corresponding number is already
 		// in the board
 		let mut used_numbers = (0..to_return.nb_tile())
-				.map(|x| (x, false)).collect();
+				.map(|x| (x as i32, false)).collect();
 
 		for _ in (0..to_return.nb_tile()) {
 			let nbr = NPuzzle::random_tile(&mut used_numbers);
@@ -86,16 +85,16 @@ impl NPuzzle
 	}
 
 	/// Return the number of tile in the npuzzle board including the empty tile.
-	pub fn nb_tile(&self) -> i32 {
+	pub fn nb_tile(&self) -> usize {
 		self.size * self.size
 	}
 
 	/// Get the tiles which coordinates are [x, y]
-	pub fn get(&self, x: i32, y: i32) -> Tile {
-		self.tiles[(y * self.size + x) as usize].clone()
+	pub fn get(&self, x: usize, y: usize) -> Tile {
+		self.tiles[(y * self.size + x)].clone()
 	}
 
-	pub fn get_size(&self) -> i32 {
+	pub fn get_size(&self) -> usize {
 		self.size
 	}
 
@@ -107,10 +106,10 @@ impl NPuzzle
 
 		// test if the tiles are the one expected
 		let mut used_numbers : Vec<(i32, bool)> = (0..self.nb_tile())
-				.map(|x| (x, false)).collect();
+				.map(|x| (x as i32, false)).collect();
 		for i in (0..self.nb_tile()) {
 			let tile_nbr = self.tiles[i as usize].to_nbr();
-			if tile_nbr > self.nb_tile() - 1 {
+			if tile_nbr as usize > self.nb_tile() - 1 {
 				return Err("NPuzzle board incorrect : tile number out of bound");
 			}
 			let (_, already_in) = used_numbers[tile_nbr as usize];

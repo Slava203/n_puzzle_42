@@ -4,14 +4,14 @@ use tools::fn_str;
 use npuzzle::{NPuzzle};
 
 impl NPuzzle {
-	fn split_one_line(line: &str, size: i32) -> Option<Vec<i32>> {
+	fn split_one_line(line: &str, size: usize) -> Option<Vec<i32>> {
 		let ints : Vec<i32> = line
 				.split(' ')
 				.map(|x| x.trim())
 				.filter(|x| x.len() > 0)
 				.map(|x| {fn_str::atoi(x).unwrap()})
 				.collect();
-		if ints.len() == size as usize {
+		if ints.len() == size {
 			Some(ints)
 		} else {
 			None
@@ -32,7 +32,7 @@ impl NPuzzle {
 	// }
 
 	/// Parse a string which describe the inital state of the npuzzle board.
-	fn execute_parse(size: i32, lines: &Vec<&str>)
+	fn execute_parse(size: usize, lines: &Vec<&str>)
 			-> Result<NPuzzle, &'static str> {
 		let mut to_return = NPuzzle::new(size);
 		if lines.len() != size as usize {
@@ -64,7 +64,7 @@ impl NPuzzle {
 	pub fn parse_with_size(to_parse: &String)
 			-> Result<NPuzzle, &'static str> {
 		let lines = NPuzzle::split_into_lines(to_parse);
-		let size_err = fn_str::atoi::<i32>(lines[0]);
+		let size_err = fn_str::atoi::<usize>(lines[0]);
 		if size_err.is_err() {
 			return Err("Error parsing size into int");
 		}
