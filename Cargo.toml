@@ -6,4 +6,4 @@ authors = ["Guillaume Bersac <bersac_1@hotmail.fr>"]
 [dependencies]
 rand = "*"
 regex = "*"
-num = "*"
+getopts = "*"
