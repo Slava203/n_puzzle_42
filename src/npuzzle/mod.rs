@@ -1,4 +1,5 @@
 mod npuzzle;
+mod parser;
 mod tile;
 
 pub use self::npuzzle::{NPuzzle};

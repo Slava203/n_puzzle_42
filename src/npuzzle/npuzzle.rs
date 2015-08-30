@@ -2,7 +2,11 @@ use rand::Rng;
 use rand;
 use std::fmt::{Formatter, Display, Error};
 use npuzzle::tile::{Tile};
-// use parser::{parse};
+use std::path::Path;
+use std::error;
+use std::fs::File;
+use std::io::prelude::*;
+use npuzzle::parser;
 
 /// This structure represent a NPuzzle game instance.
 #[derive(Debug)]
@@ -14,7 +18,7 @@ pub struct NPuzzle
 
 impl NPuzzle
 {
-	fn new(size: i32) -> NPuzzle {
+	pub fn new(size: i32) -> NPuzzle {
 		NPuzzle{
 			size:	size,
 			tiles:	Vec:: with_capacity((size * size) as usize),
@@ -55,6 +59,32 @@ impl NPuzzle
 		to_return
 	}
 
+	pub fn new_from_file(file_name: &str)
+			-> Result<NPuzzle, &'static str> {
+		let path = Path::new(&file_name);
+		let display = path.display();
+
+		let mut file = match File::open(&path) {
+			Err(why)	=> panic!("couldn't open {}: {}", display,
+								error::Error::description(&why)),
+			Ok(file)	=> file,
+		};
+
+		// Read the file contents into a string, returns `io::Result<usize>`
+		let mut s = String::new();
+		match file.read_to_string(&mut s) {
+			Err(why)	=> panic!("couldn't read {}: {}",
+								display,
+								error::Error::description(&why)),
+			Ok(_)		=> print!(""),
+		};
+		NPuzzle::parse_with_size(&mut s)
+	}
+
+	pub fn append_tiles(&mut self, new_tiles: &mut Vec<Tile>) {
+		self.tiles.extend(new_tiles.iter().cloned());
+	}
+
 	/// Return the number of tile in the npuzzle board including the empty tile.
 	pub fn nb_tile(&self) -> i32 {
 		self.size * self.size
@@ -65,25 +95,34 @@ impl NPuzzle
 		self.tiles[(y * self.size + x) as usize].clone()
 	}
 
-	// fn new_from_file(file_name: str) -> NPuzzle {
-	// 	let path = Path::new(file_name);
-	// 	let display = path.display();
+	pub fn get_size(&self) -> i32 {
+		self.size
+	}
 
-	// 	let mut file = match File::open(&path) {
-	// 	    Err(why) => panic!("couldn't open {}: {}", display,
-	// 	                                               Error::description(&why)),
-	// 	    Ok(file) => file,
-	// 	};
+	pub fn is_correct(&self) -> Result<(), &'static str> {
+		// test number of tile
+		if self.tiles.len() != self.nb_tile() as usize {
+			return Err("NPuzzle board incorrect : not the required number of tile");
+		}
 
-	// 	// Read the file contents into a string, returns `io::Result<usize>`
-	// 	let mut s = String::new();
-	// 	let to_return = match file.read_to_string(&mut s) {
-	// 	    Err(why) => panic!("couldn't read {}: {}",
-	// 	    					display,
-	// 	                        Error::description(&why)),
-	// 	    Ok(_) => parse(s),
-	// 	}
-	// }
+		// test if the tiles are the one expected
+		let mut used_numbers : Vec<(i32, bool)> = (0..self.nb_tile())
+				.map(|x| (x, false)).collect();
+		for i in (0..self.nb_tile()) {
+			let tile_nbr = self.tiles[i as usize].to_nbr();
+			if tile_nbr > self.nb_tile() - 1 {
+				return Err("NPuzzle board incorrect : tile number out of bound");
+			}
+			let (_, already_in) = used_numbers[tile_nbr as usize];
+			if already_in {
+				return Err("NPuzzle board incorrect : duplicated tile");
+			}
+			used_numbers[tile_nbr as usize] = (tile_nbr, true);
+		}
+
+		//every thing is ok !
+		Ok(())
+	}
 }
 
 impl Display for NPuzzle
