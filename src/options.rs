@@ -30,10 +30,10 @@ impl FromStr for Heuristic {
 #[derive(Debug)]
 pub struct Options
 {
-    input:		Input,
-    help:		bool,
-    heuristic:	Heuristic,
-    usage:		String,
+    pub input:		Input,
+    pub help:		bool,
+    pub heuristic:	Heuristic,
+    pub usage:		String,
 
     /// True if some args of the cli has not been parsed
     has_free:		bool,

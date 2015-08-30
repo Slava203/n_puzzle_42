@@ -7,6 +7,7 @@ use std::path::Path;
 use std::error;
 use std::fs::File;
 use std::io::prelude::*;
+use std::io;
 
 /// This structure represent a NPuzzle game instance.
 #[derive(Debug)]
@@ -43,8 +44,8 @@ impl NPuzzle
 	}
 
 	/// Return a NPuzzle which values as been set randomly
-	pub fn new_random(size: usize) -> NPuzzle {
-		let mut to_return = NPuzzle::new(size);
+	pub fn new_random(size: &usize) -> NPuzzle {
+		let mut to_return = NPuzzle::new(*size);
 
 		// This array contain all of the number to put in the board, and
 		// associate a boolean to say if the corresponding number is already
@@ -57,6 +58,18 @@ impl NPuzzle
 			to_return.tiles.push(Tile::from_nbr(nbr));
 		}
 		to_return
+	}
+
+	pub fn new_from_stdin()
+			-> Result<NPuzzle, ParseError> {
+		let mut reader = io::stdin();
+		let mut s = String::new();
+		match reader.read_to_string(&mut s) {
+			Err(why)	=> panic!("couldn't read stdin {}",
+								error::Error::description(&why)),
+			Ok(_)		=> print!(""),
+		};
+		NPuzzle::parse_with_size(&mut s)
 	}
 
 	pub fn new_from_file(file_name: &str)
