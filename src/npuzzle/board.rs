@@ -7,6 +7,12 @@ pub struct Board
 {
 	size:		usize,
 	tiles:		Vec<Tile>,
+
+	/// Coordinate x of the free tile
+	x_free:		usize,
+
+	/// Coordinate y of the free tile
+	y_free:		usize,
 }
 
 impl Board
@@ -15,18 +21,36 @@ impl Board
 		Board {
 			size:	size,
 			tiles:	Vec::with_capacity(size * size),
+			x_free:	0,
+			y_free:	0,
 		}
 	}
 
 	pub fn new_with_tiles(size: usize, tiles: Vec<Tile>) -> Board {
-		Board {
+		let mut to_return = Board {
 			size:	size,
 			tiles:	tiles,
-		}
+			x_free:		0,
+			y_free:		0,
+		};
+		to_return.search_free_coord();
+		to_return
 	}
 
 	pub fn append_tiles(&mut self, new_tiles: &mut Vec<Tile>) {
 		self.tiles.extend(new_tiles.iter().cloned());
+		self.search_free_coord();
+	}
+
+	fn search_free_coord(&mut self) {
+		for (i, tile) in self.tiles.iter().enumerate() {
+			if *tile == Tile::FREE {
+				let (x, y) = self.xy_out_of_index(i);
+				self.x_free = x;
+				self.y_free = y;
+				return ;
+			}
+		}
 	}
 
 	pub fn get_size(&self) -> usize {
@@ -41,6 +65,30 @@ impl Board
 	/// Get the tiles which coordinates are [x, y]
 	pub fn get(&self, x: usize, y: usize) -> Tile {
 		self.tiles[(y * self.size + x)].clone()
+	}
+
+	fn xy_out_of_index(&self, idx: usize) -> (usize, usize) {
+		(idx % self.size, idx / self.size)
+	}
+
+	pub fn action_allowed(&self, action: Action) -> bool {
+		if self.x_free as i32 + action.impact_x() < 0 ||
+				self.x_free as i32 + action.impact_x() >= self.size as i32 ||
+				self.y_free as i32 + action.impact_y() < 0 ||
+				self.y_free as i32 + action.impact_y() >= self.size as i32 {
+			return false;
+		}
+		true
+	}
+
+	// change the board according to the action.
+	pub fn execute_action(&mut self, action: Action) -> bool {
+		if !self.action_allowed(action.clone()) {
+			return false;
+		}
+		let moved_tile = self.get(self.x_free + action.impact_x() as usize,
+				self.y_free + action.impact_y() as usize);
+		true
 	}
 
 	pub fn is_correct(&self) -> Result<(), IncorrectBoardError> {

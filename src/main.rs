@@ -2,7 +2,7 @@ extern crate regex;
 extern crate getopts;
 extern crate rand;
 
-// mod algo;
+mod algo;
 mod npuzzle;
 mod tools;
 mod options;
