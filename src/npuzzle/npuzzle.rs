@@ -7,23 +7,35 @@ use std::path::Path;
 use std::error;
 use std::fs::File;
 use std::io::prelude::*;
+use npuzzle::{Board};
 use std::io;
 
 /// This structure represent a NPuzzle game instance.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct NPuzzle
 {
-	size:	usize,
-	tiles:	Vec<Tile>,
+	size:			usize,
+	initial_state:	Board,
+	goal_state:		Board,
 }
 
 impl NPuzzle
 {
-	pub fn new(size: usize) -> NPuzzle {
+	fn new(size: usize, initial_state: Board) -> NPuzzle {
 		NPuzzle{
-			size:	size,
-			tiles:	Vec:: with_capacity((size * size)),
+			size:			size,
+			initial_state:	initial_state,
+			goal_state:		NPuzzle::create_goal_state(size),
 		}
+	}
+
+	fn create_goal_state(size: usize) -> Board {
+		let mut to_return = Vec::with_capacity(size * size);
+		for i in (0..(size * size - 1)) {
+			to_return.push(Tile::from_nbr((i + 1) as i32));
+		}
+		to_return.push(Tile::from_nbr(0));
+		Board::new_with_tiles(size, to_return)
 	}
 
 	/// Return a random number which is not declared as used in
@@ -35,7 +47,6 @@ impl NPuzzle
 			let index = (rand + i) % used_numbers.len();
 			let &mut num = &mut used_numbers[index];
 			if !num.1 {
-				// num.1 = true;
 				used_numbers[index] = (num.0, true);
 				return num.0;
 			}
@@ -44,20 +55,32 @@ impl NPuzzle
 	}
 
 	/// Return a NPuzzle which values as been set randomly
-	pub fn new_random(size: &usize) -> NPuzzle {
-		let mut to_return = NPuzzle::new(*size);
+	pub fn new_random(size: usize) -> NPuzzle {
+		let mut board = Board::new(size);
 
 		// This array contain all of the number to put in the board, and
 		// associate a boolean to say if the corresponding number is already
 		// in the board
-		let mut used_numbers = (0..to_return.nb_tile())
+		let mut used_numbers = (0..board.nb_tile())
 				.map(|x| (x as i32, false)).collect();
 
-		for _ in (0..to_return.nb_tile()) {
+		let mut new_tiles = Vec::with_capacity(board.nb_tile());
+		for _ in (0..board.nb_tile()) {
 			let nbr = NPuzzle::random_tile(&mut used_numbers);
-			to_return.tiles.push(Tile::from_nbr(nbr));
+			new_tiles.push(Tile::from_nbr(nbr));
 		}
-		to_return
+		board.append_tiles(&mut new_tiles);
+		NPuzzle::new(size, board)
+	}
+
+	pub fn board_res_into_npuzzle(np_res: Result<Board, ParseError>)
+			-> Result<NPuzzle, ParseError> {
+		if np_res.is_err() {
+			Err(np_res.err().unwrap())
+		} else {
+			let board = np_res.unwrap();
+			Ok(NPuzzle::new(board.get_size(), board))
+		}
 	}
 
 	pub fn new_from_stdin()
@@ -69,7 +92,14 @@ impl NPuzzle
 								error::Error::description(&why)),
 			Ok(_)		=> print!(""),
 		};
-		NPuzzle::parse_with_size(&mut s)
+		NPuzzle::board_res_into_npuzzle(NPuzzle::parse_with_size(&s))
+	}
+
+	pub fn new_from_str(s: &String)
+			-> Result<NPuzzle, ParseError> {
+		print!("{:?}", NPuzzle::parse_with_size(&s));
+		print!("{:?}", NPuzzle::board_res_into_npuzzle(NPuzzle::parse_with_size(&s)));
+		NPuzzle::board_res_into_npuzzle(NPuzzle::parse_with_size(&s))
 	}
 
 	pub fn new_from_file(file_name: &str)
@@ -91,11 +121,7 @@ impl NPuzzle
 								error::Error::description(&why)),
 			Ok(_)		=> print!(""),
 		};
-		NPuzzle::parse_with_size(&mut s)
-	}
-
-	pub fn append_tiles(&mut self, new_tiles: &mut Vec<Tile>) {
-		self.tiles.extend(new_tiles.iter().cloned());
+		NPuzzle::board_res_into_npuzzle(NPuzzle::parse_with_size(&mut s))
 	}
 
 	/// Return the number of tile in the npuzzle board including the empty tile.
@@ -103,41 +129,16 @@ impl NPuzzle
 		self.size * self.size
 	}
 
-	/// Get the tiles which coordinates are [x, y]
-	pub fn get(&self, x: usize, y: usize) -> Tile {
-		self.tiles[(y * self.size + x)].clone()
-	}
-
 	pub fn get_size(&self) -> usize {
 		self.size
 	}
 
-	pub fn is_correct(&self) -> Result<(), IncorrectBoardError> {
-		// test number of tile
-		if self.tiles.len() != self.nb_tile() as usize {
-			return Err(IncorrectBoardError::WrongNumberOfTile{
-				found:		self.tiles.len(),
-				expected:	self.nb_tile(),
-			});
-		}
+	pub fn get_initial_state(&self) -> &Board {
+		&self.initial_state
+	}
 
-		// test if the tiles are the one expected
-		let mut used_numbers : Vec<(i32, bool)> = (0..self.nb_tile())
-				.map(|x| (x as i32, false)).collect();
-		for i in (0..self.nb_tile()) {
-			let tile_nbr = self.tiles[i as usize].to_nbr();
-			if tile_nbr as usize > self.nb_tile() - 1 {
-				return Err(IncorrectBoardError::OutOfBoundTile{tile: tile_nbr});
-			}
-			let (_, already_in) = used_numbers[tile_nbr as usize];
-			if already_in {
-				return Err(IncorrectBoardError::DuplicatedTile{tile: tile_nbr});
-			}
-			used_numbers[tile_nbr as usize] = (tile_nbr, true);
-		}
-
-		//every thing is ok !
-		Ok(())
+	pub fn get_goal_state(&self) -> &Board {
+		&self.goal_state
 	}
 }
 
@@ -145,14 +146,7 @@ impl Display for NPuzzle
 {
 	fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
 	{
-		let mut to_return = Ok(());
-		to_return = to_return.and(write!(f, "size : {}\n", self.size));
-		for y in (0..self.size) {
-			for x in (0..self.size) {
-				to_return = to_return.and(write!(f, "{:<4} ", self.get(x, y)));
-			}
-			to_return = to_return.and(write!(f, "\n"));
-		}
-		to_return
+		write!(f, "{}", self.initial_state);
+		Ok(())
 	}
 }

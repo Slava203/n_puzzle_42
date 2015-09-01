@@ -1,8 +1,6 @@
-use tools::tokenizer::{Token, Tokenizer, TokenInfo};
-use npuzzle::tile::{Tile};
 use tools::fn_str;
 use npuzzle::errors::{IncorrectBoardError, ParseError};
-use npuzzle::{NPuzzle};
+use npuzzle::{NPuzzle, Tile, Board};
 
 impl NPuzzle {
 	fn split_one_line(line: &str, size: usize) -> Vec<i32> {
@@ -21,35 +19,30 @@ impl NPuzzle {
 				.collect::<Vec<&str>>()
 	}
 
-	// pub fn parse(size: i32, to_parse: &String)
-	// 		-> Result<NPuzzle, ParseError> {
-
-	// }
-
 	/// Parse a string which describe the inital state of the npuzzle board.
 	fn execute_parse(size: usize, lines: &Vec<&str>)
-			-> Result<NPuzzle, ParseError> {
-		let mut to_return = NPuzzle::new(size);
+			-> Result<Board, ParseError> {
+		let mut board = Board::new(size);
 
 		// split lines into integer
 		for line in lines {
-			let ints = NPuzzle::split_one_line(line, size);
+			let ints : Vec<i32> = NPuzzle::split_one_line(line, size);
 			let mut tiles = ints.iter().map(|x| Tile::from_nbr(*x)).collect();
-			to_return.append_tiles(&mut tiles);
+			board.append_tiles(&mut tiles);
 		}
 
 		// test the validity of the parsed board
-		let is_correct = to_return.is_correct();
+		let is_correct = board.is_correct();
 		if is_correct.is_ok() {
-			Ok(to_return)
+			Ok(board)
 		} else {
 			Err(ParseError::IncorrectBoard(is_correct.err().unwrap()))
 		}
 	}
 
-	/// This function also parse the size of the NPuzzle.
+	/// This function also parse the size of the Board.
 	pub fn parse_with_size(to_parse: &String)
-			-> Result<NPuzzle, ParseError> {
+			-> Result<Board, ParseError> {
 		let lines = NPuzzle::split_into_lines(to_parse);
 		let size_err = fn_str::atoi::<usize>(lines[0]);
 		if size_err.is_err() {

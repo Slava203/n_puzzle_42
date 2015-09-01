@@ -2,7 +2,7 @@ extern crate regex;
 extern crate getopts;
 extern crate rand;
 
-
+// mod algo;
 mod npuzzle;
 mod tools;
 mod options;
@@ -20,7 +20,7 @@ fn board_from_option(opts: &Options) -> NPuzzle {
 			}
 			np_res.unwrap()
 		},
-		Input::Random(ref size) =>	{
+		Input::Random(size) =>	{
 			NPuzzle::new_random(size)
 		},
 		Input::File(ref file_name) =>	{
