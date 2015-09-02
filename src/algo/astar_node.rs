@@ -1,14 +1,15 @@
 // use npuzzle::action::{Action};
+use std::rc::Rc;
 use std::cmp::Ordering;
 use npuzzle::{Action, NPuzzle};
 use algo::{Heuristic};
 use npuzzle::{Board};
 
-pub type ParentType = Option<Box<AStarNode>>;
+pub type ParentType = Option<Rc<AStarNode>>;
 // Type for recursive compute_board
-// type RecBoard = Box<Board>;
+// type RecBoard = Rc<Board>;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AStarNode
 {
 	///action made by this node
@@ -29,30 +30,6 @@ pub struct AStarNode
 
 impl AStarNode
 {
-	// /// Recursive function which return the state of the game after the action
-	// /// of this node has been executed.
-	// ///
-	// /// initial_state:	this is the state of the game before any action has
-	// /// 				been executed.
-	// fn compute_board(&self, initial_state: RecBoard) -> (i32, RecBoard) {
-	// 	if !self.parent.is_none() {
-	// 		(0, initial_state)
-	// 	} else {
-	// 		let (g, mut board) = self.parent.unwrap().compute_board(initial_state);
-	// 		//the possibility to execute the action has already been tested
-	// 		board.execute_action(self.action.clone());
-	// 		(g + 1, board)
-	// 	}
-	// }
-
-	// fn compute_cost(&self, game: &NPuzzle, heu: &Heuristic) -> (i32, i32) {
-	// 	let mut boxed_board = Box::new(game.get_initial_state().clone());
-	// 	let (g, current_state) =
-	// 			self.compute_board(boxed_board);
-	// 	let h = heu.h(&current_state, game.get_goal_state());
-	// 	(g, h)
-	// }
-
 	fn compute_current_state(parent: &ParentType,
 			game: &NPuzzle,
 			action: Action) -> (i32, Board) {
@@ -73,14 +50,11 @@ impl AStarNode
 			AStarNode::compute_current_state(&parent, game, action.clone());
 		let mut to_return = AStarNode {
 			action:			action,
-			g:				0,
+			g:				g,
 			h:				0,
 			parent:			parent,
 			current_state:	board,
 		};
-		// let (g, h) = to_return.compute_cost(game, heu);
-		to_return.current_state = to_return.current_state;
-		to_return.g = g;
 		to_return.h = heu.h(&to_return.current_state, game.get_goal_state());
 		to_return
 	}
@@ -97,6 +71,15 @@ impl AStarNode
 
 	pub fn ttl_cost(&self) -> i32 {
 		self.g + self.h
+	}
+
+	// Return true if this state represent a victorious state.
+	pub fn is_complete(&self) -> bool {
+		self.current_state.is_complete()
+	}
+
+	pub fn board(&self) -> &Board {
+		&self.current_state
 	}
 }
 

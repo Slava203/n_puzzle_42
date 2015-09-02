@@ -2,7 +2,7 @@ use npuzzle::errors::{IncorrectBoardError, ParseError};
 use std::fmt::{Formatter, Display, Error};
 use npuzzle::{Tile, Action};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Board
 {
 	size:		usize,
@@ -91,6 +91,7 @@ impl Board
 		true
 	}
 
+	// Return true if there is no error in this board
 	pub fn is_correct(&self) -> Result<(), IncorrectBoardError> {
 		// test number of tile
 		if self.tiles.len() != self.nb_tile() as usize {

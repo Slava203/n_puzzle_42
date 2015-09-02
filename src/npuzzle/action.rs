@@ -29,5 +29,8 @@ impl Action {
 			Action::No		=> 0,
 		}
 	}
-}
 
+	pub fn list_all() -> Vec<Action> {
+		vec!(Action::Up, Action::Down, Action::Left, Action::Right)
+	}
+}
