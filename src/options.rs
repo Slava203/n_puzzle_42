@@ -13,7 +13,6 @@ pub enum Input {
 #[derive(Debug)]
 pub enum Heuristic {
     Manhattan,
-    Error,
 }
 
 impl FromStr for Heuristic {

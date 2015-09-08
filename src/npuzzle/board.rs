@@ -1,8 +1,11 @@
+use std::{ptr};
+use std::str::FromStr;
 use npuzzle::errors::{IncorrectBoardError, ParseError};
 use std::fmt::{Formatter, Display, Error};
 use npuzzle::{Tile, Action};
+use npuzzle::parser;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct Board
 {
 	size:		usize,
@@ -67,8 +70,12 @@ impl Board
 		self.tiles[(y * self.size + x)].clone()
 	}
 
-	fn xy_out_of_index(&self, idx: usize) -> (usize, usize) {
+	pub fn xy_out_of_index(&self, idx: usize) -> (usize, usize) {
 		(idx % self.size, idx / self.size)
+	}
+
+	pub fn index_out_of_xy(&self, x: usize, y: usize) -> usize {
+		y * self.size + x
 	}
 
 	pub fn action_allowed(&self, action: Action) -> bool {
@@ -86,8 +93,13 @@ impl Board
 		if !self.action_allowed(action.clone()) {
 			return false;
 		}
-		let moved_tile = self.get(self.x_free + action.impact_x() as usize,
-				self.y_free + action.impact_y() as usize);
+		let x = (self.x_free as i32 + action.impact_x()) as usize;
+		let y = (self.y_free as i32 + action.impact_y()) as usize;
+		let idx_tile = self.index_out_of_xy(x, y);
+		let idx_free = self.index_out_of_xy(self.x_free, self.y_free);
+		self.tiles.swap(idx_tile, idx_free);
+		self.x_free = x;
+		self.y_free = y;
 		true
 	}
 
@@ -129,6 +141,10 @@ impl Board
 		}
 		true
 	}
+
+	pub fn get_tiles(&self) -> &Vec<Tile> {
+		&self.tiles
+	}
 }
 
 impl Display for Board
@@ -145,4 +161,22 @@ impl Display for Board
 		}
 		to_return
 	}
+}
+
+impl PartialEq for Board {
+    fn eq(&self, other: &Board) -> bool {
+    	if self.size != other.size {
+    		return false;
+    	}
+    	for i in (0..self.nb_tile()) {
+    		if self.tiles[i] != other.tiles[i] {
+    			return false;
+    		}
+    	}
+    	true
+    }
+
+    fn ne(&self, other: &Board) -> bool {
+    	!self.eq(other)
+    }
 }

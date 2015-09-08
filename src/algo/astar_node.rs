@@ -2,14 +2,14 @@
 use std::rc::Rc;
 use std::cmp::Ordering;
 use npuzzle::{Action, NPuzzle};
-use algo::{Heuristic};
+use algo::{HeuristicFn};
 use npuzzle::{Board};
 
 pub type ParentType = Option<Rc<AStarNode>>;
 // Type for recursive compute_board
 // type RecBoard = Rc<Board>;
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct AStarNode
 {
 	///action made by this node
@@ -36,7 +36,10 @@ impl AStarNode
 		match *parent {
 			Some(ref x)	=> {
 				let mut board = x.current_state.clone();
+				// println!("#compute_current_state {:?}", action);
+				// println!("board before\n{}", board);
 				board.execute_action(action);
+				// println!("board after\n{}", board);
 				(x.g + 1, board)
 			},
 			None		=> (0, game.get_initial_state().clone()),
@@ -44,7 +47,7 @@ impl AStarNode
 	}
 
 	fn hidden_new(action: Action, parent: ParentType,
-				game: &NPuzzle, heu: &Heuristic) -> AStarNode
+				game: &NPuzzle, heu: &HeuristicFn) -> AStarNode
 	{
 		let (g, board) =
 			AStarNode::compute_current_state(&parent, game, action.clone());
@@ -55,22 +58,24 @@ impl AStarNode
 			parent:			parent,
 			current_state:	board,
 		};
-		to_return.h = heu.h(&to_return.current_state, game.get_goal_state());
+		to_return.h = heu(&to_return.current_state, game.get_goal_state());
 		to_return
 	}
 
 	pub fn new(action: Action, parent: ParentType,
-				game: &NPuzzle, heu: &Heuristic) -> AStarNode
+				game: &NPuzzle, heu: &HeuristicFn) -> AStarNode
 	{
 		AStarNode::hidden_new(action, parent, game, heu)
 	}
 
-	pub fn new_root(game: &NPuzzle, heu: &Heuristic) -> AStarNode {
+	pub fn new_root(game: &NPuzzle, heu: &HeuristicFn) -> AStarNode {
 		AStarNode::hidden_new(Action::No, None, game, heu)
 	}
 
-	pub fn ttl_cost(&self) -> i32 {
-		self.g + self.h
+	/// This function return cost * -1. It has no sense but the implementation
+	/// of BinaryHeap always pop the biggest value (ie the biggest cost).
+	pub fn invert_ttl_cost(&self) -> i32 {
+		-(self.g + self.h)
 	}
 
 	// Return true if this state represent a victorious state.
@@ -85,7 +90,7 @@ impl AStarNode
 
 impl PartialEq for AStarNode {
     fn eq(&self, other: &AStarNode) -> bool {
-    	self.ttl_cost() == other.ttl_cost()
+    	self.invert_ttl_cost() == other.invert_ttl_cost()
     }
 
     fn ne(&self, other: &AStarNode) -> bool {
@@ -98,7 +103,7 @@ impl Eq for AStarNode {}
 impl Ord for AStarNode {
     fn cmp(&self, other: &AStarNode) -> Ordering {
         // Notice that the we flip the ordering here
-        other.ttl_cost().cmp(&self.ttl_cost())
+        other.invert_ttl_cost().cmp(&self.invert_ttl_cost())
     }
 }
 
@@ -106,5 +111,23 @@ impl Ord for AStarNode {
 impl PartialOrd for AStarNode {
     fn partial_cmp(&self, other: &AStarNode) -> Option<Ordering> {
         Some(self.cmp(other))
+    }
+}
+
+use std::fmt::{Formatter, Display, Error};
+use std::fmt;
+
+impl Display for AStarNode
+{
+	fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
+	{
+		write!(f, "ASN:{}", self.action);
+		Ok(())
+	}
+}
+
+impl fmt::Debug for AStarNode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    	write!(f, "{}", self)
     }
 }

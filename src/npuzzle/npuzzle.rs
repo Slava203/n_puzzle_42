@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use rand::Rng;
 use rand;
 use std::fmt::{Formatter, Display, Error};
@@ -92,14 +93,12 @@ impl NPuzzle
 								error::Error::description(&why)),
 			Ok(_)		=> print!(""),
 		};
-		NPuzzle::board_res_into_npuzzle(NPuzzle::parse_with_size(&s))
+		NPuzzle::board_res_into_npuzzle(Board::parse_with_size(&s))
 	}
 
 	pub fn new_from_str(s: &String)
 			-> Result<NPuzzle, ParseError> {
-		print!("{:?}", NPuzzle::parse_with_size(&s));
-		print!("{:?}", NPuzzle::board_res_into_npuzzle(NPuzzle::parse_with_size(&s)));
-		NPuzzle::board_res_into_npuzzle(NPuzzle::parse_with_size(&s))
+		NPuzzle::board_res_into_npuzzle(Board::parse_with_size(&s))
 	}
 
 	pub fn new_from_file(file_name: &str)
@@ -121,7 +120,7 @@ impl NPuzzle
 								error::Error::description(&why)),
 			Ok(_)		=> print!(""),
 		};
-		NPuzzle::board_res_into_npuzzle(NPuzzle::parse_with_size(&mut s))
+		NPuzzle::board_res_into_npuzzle(Board::parse_with_size(&mut s))
 	}
 
 	/// Return the number of tile in the npuzzle board including the empty tile.

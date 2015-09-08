@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[derive(Debug, Clone)]
 pub enum Action {
     Up,
@@ -32,5 +34,16 @@ impl Action {
 
 	pub fn list_all() -> Vec<Action> {
 		vec!(Action::Up, Action::Down, Action::Left, Action::Right)
+	}
+}
+
+use std::fmt::{Formatter, Display, Error};
+
+impl Display for Action
+{
+	fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
+	{
+		write!(f, "{:?}", self);
+		Ok(())
 	}
 }

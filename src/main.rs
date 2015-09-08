@@ -9,8 +9,10 @@ mod options;
 
 use npuzzle::{NPuzzle};
 use options::{Options, Input};
+use algo::{AStar, HeuristicFn};
+use algo::heuristic;
 
-fn board_from_option(opts: &Options) -> NPuzzle {
+fn np_from_option(opts: &Options) -> NPuzzle {
 	match opts.input {
 		Input::Stdin =>			{
 			let np_res = NPuzzle::new_from_stdin();
@@ -39,6 +41,9 @@ fn main() {
 	if options.check_options() {
 		return ;
 	}
-	let board = board_from_option(&options);
-    println!("{}", board);
+	let np = np_from_option(&options);
+	let heuri = heuristic::from_option(options.heuristic);
+	let astar = AStar::solve(&np, &heuri);
+    // println!("{}", np);
+    astar.print_result();
 }

@@ -2,7 +2,7 @@ use tools::fn_str;
 use npuzzle::errors::{IncorrectBoardError, ParseError};
 use npuzzle::{NPuzzle, Tile, Board};
 
-impl NPuzzle {
+impl Board {
 	fn split_one_line(line: &str, size: usize) -> Vec<i32> {
 		line.split(' ')
 				.map(|x| x.trim())
@@ -26,7 +26,7 @@ impl NPuzzle {
 
 		// split lines into integer
 		for line in lines {
-			let ints : Vec<i32> = NPuzzle::split_one_line(line, size);
+			let ints : Vec<i32> = Board::split_one_line(line, size);
 			let mut tiles = ints.iter().map(|x| Tile::from_nbr(*x)).collect();
 			board.append_tiles(&mut tiles);
 		}
@@ -43,13 +43,13 @@ impl NPuzzle {
 	/// This function also parse the size of the Board.
 	pub fn parse_with_size(to_parse: &String)
 			-> Result<Board, ParseError> {
-		let lines = NPuzzle::split_into_lines(to_parse);
+		let lines = Board::split_into_lines(to_parse);
 		let size_err = fn_str::atoi::<usize>(lines[0]);
 		if size_err.is_err() {
 			return Err(ParseError::ParseSize);
 		}
 		let lines_reduce = (&lines[1..]).to_vec();
-		NPuzzle::execute_parse(size_err.unwrap(), &lines_reduce)
+		Board::execute_parse(size_err.unwrap(), &lines_reduce)
 	}
 }
 
@@ -57,8 +57,7 @@ impl NPuzzle {
 mod test
 {
 	use super::*;
-	use npuzzle::npuzzle::{NPuzzle};
-	use npuzzle::tile::{Tile};
+	use npuzzle::{NPuzzle, Board, Tile};
 
 	#[test]
 	fn test_parse1() {
@@ -67,7 +66,7 @@ mod test
 		3 0
 		"#;
 		println!("str {:?}", str1);
-		let np = NPuzzle::parse_with_size(&mut str1.to_string()).unwrap();
+		let np = Board::parse_with_size(&mut str1.to_string()).unwrap();
 		// println!("size {:?}", np.get_size());
 		assert!(np.get_size() == 2);
 		assert!(np.get(0, 0) == Tile::NUMBER(1));
@@ -85,7 +84,7 @@ mod test
 		3 0
 		"#;
 		println!("str {:?}", str1);
-		let np = NPuzzle::parse_with_size(&mut str1.to_string()).unwrap();
+		let np = Board::parse_with_size(&mut str1.to_string()).unwrap();
 	}
 
 	#[test]
@@ -96,7 +95,7 @@ mod test
 		3 0
 		"#;
 		println!("str {:?}", str1);
-		let np = NPuzzle::parse_with_size(&mut str1.to_string()).unwrap();
+		let np = Board::parse_with_size(&mut str1.to_string()).unwrap();
 	}
 
 	#[test]
@@ -107,6 +106,6 @@ mod test
 		3 0
 		"#;
 		println!("str {:?}", str1);
-		let np = NPuzzle::parse_with_size(&mut str1.to_string()).unwrap();
+		let np = Board::parse_with_size(&mut str1.to_string()).unwrap();
 	}
 }
