@@ -77,7 +77,7 @@ impl AStar
 					current, self.open_set_str(), current.board());
 
 			// victory condition
-			if current.is_complete() {
+			if game.is_complete(current.board()) {
 				return Some(current);
 			}
 

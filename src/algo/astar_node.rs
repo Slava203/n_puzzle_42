@@ -82,15 +82,11 @@ impl AStarNode
 		self.g + self.h
 	}
 
-	// Return true if this state represent a victorious state.
-	pub fn is_complete(&self) -> bool {
-		self.current_state.is_complete()
-	}
-
 	pub fn board(&self) -> &Board {
 		&self.current_state
 	}
 
+	/// Return the list of action of this node and of all its predecessors
 	pub fn move_list(&self) -> Vec<Action> {
 		if self.parent.is_none() {
 			return Vec::new();
@@ -138,7 +134,7 @@ impl Display for AStarNode
 {
 	fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
 	{
-		write!(f, "ASN:{}:{}", self.action, self.ttl_cost());
+		write!(f, "ASN:{}:{}({}+{})", self.action, self.ttl_cost(), self.g, self.h);
 		Ok(())
 	}
 }

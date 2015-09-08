@@ -33,8 +33,8 @@ impl Board
 		let mut to_return = Board {
 			size:	size,
 			tiles:	tiles,
-			x_free:		0,
-			y_free:		0,
+			x_free:	0,
+			y_free:	0,
 		};
 		to_return.search_free_coord();
 		to_return
@@ -132,15 +132,15 @@ impl Board
 		Ok(())
 	}
 
-	/// Return true it the tiles of this board are align as expected.
-	pub fn is_complete(&self) -> bool {
-		for i in (1..self.nb_tile()) {
-			if self.tiles[i - 1].to_nbr() != i as i32 {
-				return false;
-			}
-		}
-		true
-	}
+	// /// Return true it the tiles of this board are align as expected.
+	// pub fn is_complete(&self) -> bool {
+	// 	for i in (1..self.nb_tile()) {
+	// 		if self.tiles[i - 1].to_nbr() != i as i32 {
+	// 			return false;
+	// 		}
+	// 	}
+	// 	true
+	// }
 
 	pub fn get_tiles(&self) -> &Vec<Tile> {
 		&self.tiles

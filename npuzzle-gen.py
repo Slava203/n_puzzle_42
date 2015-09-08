@@ -19,11 +19,12 @@ def make_puzzle(s, solvable, iterations):
 		swi = random.choice(poss)
 		p[idx] = p[swi]
 		p[swi] = 0
-	
+
 	p = make_goal(s)
+	print p
 	for i in range(iterations):
 		swap_empty(p)
-	
+
 	if not solvable:
 		if p[0] == 0 or p[1] == 0:
 			p[-1], p[-2] = p[-2], p[-1]
@@ -32,28 +33,30 @@ def make_puzzle(s, solvable, iterations):
 
 	return p
 
-def make_goal(s):
-	ts = s*s
-	puzzle = [-1 for i in range(ts)]
+def make_goal(size):
+	num_tile = size * size
+	puzzle = [-1 for i in range(num_tile)]
 	cur = 1
 	x = 0
 	ix = 1
 	y = 0
 	iy = 0
 	while True:
-		puzzle[x + y*s] = cur
+		print "puzzle[" + str(x + y * size) + "] = " + str(cur)
+		puzzle[x + y * size] = cur
+		print "puzzle[" + str(x + (y+iy)*size) + "] = " + str(puzzle[x + (y+iy)*size])
 		if cur == 0:
 			break
 		cur += 1
-		if x + ix == s or x + ix < 0 or (ix != 0 and puzzle[x + ix + y*s] != -1):
+		if x + ix == size or x + ix < 0 or (ix != 0 and puzzle[x + ix + y*size] != -1):
 			iy = ix
 			ix = 0
-		elif y + iy == s or y + iy < 0 or (iy != 0 and puzzle[x + (y+iy)*s] != -1):
+		elif y + iy == size or y + iy < 0 or (iy != 0 and puzzle[x + (y+iy)*size] != -1):
 			ix = -iy
 			iy = 0
 		x += ix
 		y += iy
-		if cur == s*s:
+		if cur == size * size:
 			cur = 0
 
 	return puzzle

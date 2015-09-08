@@ -43,7 +43,7 @@ fn main() {
 	}
 	let np = np_from_option(&options);
 	let heuri = heuristic::from_option(options.heuristic);
-	let astar = AStar::solve(&np, &heuri);
+	// let astar = AStar::solve(&np, &heuri);
     // println!("{}", np);
-    astar.print_result();
+    // astar.print_result();
 }

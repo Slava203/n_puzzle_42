@@ -31,12 +31,48 @@ impl NPuzzle
 	}
 
 	fn create_goal_state(size: usize) -> Board {
-		let mut to_return = Vec::with_capacity(size * size);
-		for i in (0..(size * size - 1)) {
-			to_return.push(Tile::from_nbr((i + 1) as i32));
+		let mut puzzle = Vec::with_capacity(size * size);
+
+		//create a list of -1
+		for i in (0..(size * size)) {
+			puzzle.push(-1);
 		}
-		to_return.push(Tile::from_nbr(0));
-		Board::new_with_tiles(size, to_return)
+
+		//convert it to snail
+		println!("###for {:?}", size);
+		let mut x = 0i32;
+		let mut ix = 1i32;
+		let mut y = 0i32;
+		let mut iy = 0i32;
+		let mut cur = 1i32;
+		let s = size as i32;
+		loop {
+			puzzle[(x + y * s) as usize] = cur;
+			println!("{:?}", x + y * s);
+			if cur == 0 {
+				break ;
+			}
+			cur += 1;
+			if x + ix == s as i32 ||
+					x + ix < 0 ||
+					(ix != 0 && puzzle[(x + ix + y * s) as usize] != -1) {
+				iy = ix;
+				ix = 0;
+			}
+			else if x + (y+iy) < (s * s + 1) &&
+					(y + iy == s as i32 ||
+					 					y + iy < 0 ||
+					 					(iy != 0 && puzzle[(x + (y+iy) * s) as usize] != -1)) {
+				ix = -iy;
+				iy = 0;
+			}
+			x += ix;
+			y += iy;
+			if cur == s * s {
+				cur = 0;
+			}
+		}
+		Board::new_with_tiles(size, puzzle.iter().map(|x| Tile::from_nbr(*x)).collect())
 	}
 
 	/// Return a random number which is not declared as used in
@@ -138,6 +174,21 @@ impl NPuzzle
 
 	pub fn get_goal_state(&self) -> &Board {
 		&self.goal_state
+	}
+
+	///Return true if the board is complete
+	pub fn is_complete(&self, board: &Board) -> bool {
+		if board.get_size() != self.size {
+			return false;
+		}
+		let board_tiles = board.get_tiles();
+		let goal_tiles = self.goal_state.get_tiles();
+		for i in (0..self.nb_tile()) {
+			if goal_tiles[i] != board_tiles[i] {
+				return false;
+			}
+		}
+		return true;
 	}
 }
 
