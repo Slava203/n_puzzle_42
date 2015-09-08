@@ -69,13 +69,12 @@ impl AStar
 			-> Option<RcASN> {
 		let root = Rc::new(AStarNode::new_root(game, heu));
 		self.open_set.push(root);
-		// TODO add test for board being complete
 		while !self.open_set.is_empty() {
 			self.nb_turn += 1;
-			// println!("\n###nb_turn {:?}", nb_turn);
+			println!("\n###nb_turn {:?}", self.nb_turn);
 			let current = self.open_set.pop().unwrap();
-			// println!("current {} open_set {} board :\n{}",
-			// 		current, self.open_set_str(), current.board());
+			println!("current {} open_set {} board :\n{}",
+					current, self.open_set_str(), current.board());
 
 			// victory condition
 			if current.is_complete() {
@@ -88,7 +87,7 @@ impl AStar
 			self.closed_set.push(current);
 			self.open_set.extend(next);
 			// println!("new open_set {:?}", self.open_set_str());
-			// if nb_turn > 50 {break ;}
+			if self.nb_turn > 50 {break ;}
 		}
 		None
 	}
@@ -113,7 +112,11 @@ impl AStar
 	pub fn print_result(&self) {
 		println!("Result calculated in {} turn", self.nb_turn);
 		match self.result {
-			Some(ref x) => print!("{}", *x.board()),
+			Some(ref x) => {
+				let move_list = x.move_list();
+				println!("{:?}", move_list);
+				print!("{}", *x.board());
+			},
 			None		=> println!("The puzzle is unsolvable"),
 		}
 	}

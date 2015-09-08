@@ -78,6 +78,10 @@ impl AStarNode
 		-(self.g + self.h)
 	}
 
+	pub fn ttl_cost(&self) -> i32 {
+		self.g + self.h
+	}
+
 	// Return true if this state represent a victorious state.
 	pub fn is_complete(&self) -> bool {
 		self.current_state.is_complete()
@@ -85,6 +89,19 @@ impl AStarNode
 
 	pub fn board(&self) -> &Board {
 		&self.current_state
+	}
+
+	pub fn move_list(&self) -> Vec<Action> {
+		if self.parent.is_none() {
+			return Vec::new();
+		}
+		let mut action_lst = self.parent.as_ref()
+				.map(|x| x.move_list()).unwrap();
+		if self.action == Action::No {
+			return action_lst;
+		}
+		action_lst.push(self.action.clone());
+		action_lst
 	}
 }
 
@@ -103,7 +120,7 @@ impl Eq for AStarNode {}
 impl Ord for AStarNode {
     fn cmp(&self, other: &AStarNode) -> Ordering {
         // Notice that the we flip the ordering here
-        other.invert_ttl_cost().cmp(&self.invert_ttl_cost())
+        other.ttl_cost().cmp(&self.ttl_cost())
     }
 }
 
@@ -121,7 +138,7 @@ impl Display for AStarNode
 {
 	fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
 	{
-		write!(f, "ASN:{}", self.action);
+		write!(f, "ASN:{}:{}", self.action, self.ttl_cost());
 		Ok(())
 	}
 }
