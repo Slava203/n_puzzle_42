@@ -8,7 +8,8 @@ pub type HeuristicFn = fn(current_state: &Board, game: &NPuzzle) -> i32;
 
 pub fn from_option(opt: options::Heuristic) -> HeuristicFn {
 	match opt {
-		options::Heuristic::Manhattan =>	manhattan,
+		options::Heuristic::Manhattan =>		manhattan,
+		options::Heuristic::MisplacedTiles =>	misplaced_tiles,
 	}
 }
 
@@ -19,6 +20,17 @@ pub fn manhattan(current_state: &Board, game: &NPuzzle) -> i32 {
 		let (x_current, y_current) = current_state.xy_out_of_index(i);
 		to_return += (x_current as i32 - x_goal as i32).abs() +
 				(y_current as i32 - y_goal as i32).abs();
+	}
+	to_return
+}
+
+pub fn misplaced_tiles(current_state: &Board, game: &NPuzzle) -> i32 {
+	let mut to_return = 0;
+	for (i, current_tile) in current_state.get_tiles().iter().enumerate() {
+		let goal_tile = &game.get_goal_state().get_tiles()[i];
+		if current_tile.to_nbr() != goal_tile.to_nbr() {
+			to_return += 1;
+		}
 	}
 	to_return
 }

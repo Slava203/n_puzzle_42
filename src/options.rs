@@ -13,6 +13,7 @@ pub enum Input {
 #[derive(Debug)]
 pub enum Heuristic {
     Manhattan,
+    MisplacedTiles,
 }
 
 impl FromStr for Heuristic {
@@ -20,8 +21,9 @@ impl FromStr for Heuristic {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
     	match &s.to_lowercase()[..] {
-    		"manhattan"	=> Ok(Heuristic::Manhattan),
-    		_			=> Err("No such heuristic."),
+    		"manhattan"	=> 			Ok(Heuristic::Manhattan),
+    		"misplaced_tiles" =>	Ok(Heuristic::MisplacedTiles),
+    		_			=>			Err("No such heuristic."),
     	}
     }
 }
@@ -46,7 +48,8 @@ impl Options
 	    opts.optopt("r", "random",
 	    		"create random npuzzle of size SIZE", "SIZE");
 	    opts.optflag("h", "help", "print this help menu");
-	    opts.optopt("e", "heuristic", "heuristic to use with A*", "NAME");
+	    opts.optopt("e", "heuristic", "heuristic to use with A*. \
+	    		Available: manhattan, misplaced_tiles", "NAME");
 	    opts
 	}
 

@@ -22,9 +22,7 @@ impl AStar
 	/// Return true if the node has already been tested.
 	fn is_in_closed_set(&self, node: &AStarNode) -> bool {
 		for closed_state in self.closed_set.iter() {
-			// println!("#cmp\n{:?}\n{:?}", closed_state.board(), node.board());
 			if closed_state.board() == node.board() {
-				// println!("is_in_closed_set");
 				return true;
 			}
 		}
