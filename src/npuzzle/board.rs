@@ -132,16 +132,6 @@ impl Board
 		Ok(())
 	}
 
-	// /// Return true it the tiles of this board are align as expected.
-	// pub fn is_complete(&self) -> bool {
-	// 	for i in (1..self.nb_tile()) {
-	// 		if self.tiles[i - 1].to_nbr() != i as i32 {
-	// 			return false;
-	// 		}
-	// 	}
-	// 	true
-	// }
-
 	pub fn get_tiles(&self) -> &Vec<Tile> {
 		&self.tiles
 	}
@@ -152,7 +142,6 @@ impl Display for Board
 	fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
 	{
 		let mut to_return = Ok(());
-		to_return = to_return.and(write!(f, "size : {}\n", self.size));
 		for y in (0..self.size) {
 			for x in (0..self.size) {
 				to_return = to_return.and(write!(f, "{:<4} ", self.get(x, y)));

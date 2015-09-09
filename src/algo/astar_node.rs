@@ -134,7 +134,7 @@ impl Display for AStarNode
 {
 	fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
 	{
-		write!(f, "ASN:{}:{}({}+{})", self.action, self.ttl_cost(), self.g, self.h);
+		write!(f, "ASN:{}:{}", self.action, self.ttl_cost());
 		Ok(())
 	}
 }

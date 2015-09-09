@@ -21,7 +21,6 @@ def make_puzzle(s, solvable, iterations):
 		p[swi] = 0
 
 	p = make_goal(s)
-	print p
 	for i in range(iterations):
 		swap_empty(p)
 
@@ -42,9 +41,7 @@ def make_goal(size):
 	y = 0
 	iy = 0
 	while True:
-		print "puzzle[" + str(x + y * size) + "] = " + str(cur)
 		puzzle[x + y * size] = cur
-		print "puzzle[" + str(x + (y+iy)*size) + "] = " + str(puzzle[x + (y+iy)*size])
 		if cur == 0:
 			break
 		cur += 1

@@ -1,4 +1,6 @@
+use term_painter::Color::*;
 use std::fmt::{Formatter, Display, Error};
+use term_painter::ToStyle;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Tile {
@@ -33,9 +35,9 @@ impl Display for Tile
 		let mut to_return = Ok(());
 		match self {
 			&Tile::NUMBER(x)	=> to_return =
-									to_return.and(write!(f, "{:<4}", x)),
+									write!(f, "{:<4}", x),
 			&Tile::FREE			=> to_return =
-									to_return.and(write!(f, "X   ")),
+									write!(f, "{}", Magenta.paint("X   ")),
 		}
 		to_return
 	}

@@ -14,6 +14,7 @@ pub struct AStar
 	open_set:	BinaryHeap<RcASN>,
 	result:		Option<RcASN>,
 	nb_turn:	u32,
+	nb_state:	u32,
 }
 
 impl AStar
@@ -73,8 +74,8 @@ impl AStar
 			self.nb_turn += 1;
 			println!("\n###nb_turn {:?}", self.nb_turn);
 			let current = self.open_set.pop().unwrap();
-			println!("current {} open_set {} board :\n{}",
-					current, self.open_set_str(), current.board());
+			// println!("current {} open_set {} board :\n{}",
+			// 	current, self.open_set_str(), current.board());
 
 			// victory condition
 			if game.is_complete(current.board()) {
@@ -85,9 +86,10 @@ impl AStar
 			// println!("open_neighbours {:?}", next);
 			// self.open_set.clear(); // TO DELETE
 			self.closed_set.push(current);
+			self.nb_state += next.len() as u32;
 			self.open_set.extend(next);
 			// println!("new open_set {:?}", self.open_set_str());
-			if self.nb_turn > 50 {break ;}
+			// if self.nb_turn > 50 {break ;}
 		}
 		None
 	}
@@ -100,6 +102,7 @@ impl AStar
 			closed_set:	Vec::new(),
 			result:		None,
 			nb_turn:	0,
+			nb_state:	0,
 		};
 		to_return.result = to_return.execute(game, heu);
 		to_return
@@ -114,8 +117,18 @@ impl AStar
 		match self.result {
 			Some(ref x) => {
 				let move_list = x.move_list();
-				println!("{:?}", move_list);
-				print!("{}", *x.board());
+				let mut board = self.board.get_initial_state().clone();
+				println!("Initial state");
+				println!("{}", board);
+				for (i, action) in move_list.iter().enumerate() {
+					board.execute_action(action.clone());
+					println!("Move {} direction {}", i + 1, action);
+					println!("{}", board);
+				}
+				println!("Number of turn  (complexity in time) {:?}",
+						self.nb_turn);
+				println!("Number of state (complexity in size) {:?}",
+						self.nb_state);
 			},
 			None		=> println!("The puzzle is unsolvable"),
 		}
