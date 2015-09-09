@@ -58,7 +58,7 @@ impl AStarNode
 			parent:			parent,
 			current_state:	board,
 		};
-		to_return.h = heu(&to_return.current_state, game.get_goal_state());
+		to_return.h = heu(&to_return.current_state, &game);
 		to_return
 	}
 

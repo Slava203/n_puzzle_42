@@ -18,16 +18,37 @@ pub struct NPuzzle
 	size:			usize,
 	initial_state:	Board,
 	goal_state:		Board,
+
+	/// For the tiles number i, index_tiles[i] is the index of where the tile
+	/// i should be place in the final state.
+	index_tiles:	Vec<(usize, usize)>,
 }
 
 impl NPuzzle
 {
 	fn new(size: usize, initial_state: Board) -> NPuzzle {
-		NPuzzle{
+		let mut  to_return = NPuzzle{
 			size:			size,
 			initial_state:	initial_state,
 			goal_state:		NPuzzle::create_goal_state(size),
+			index_tiles:	Vec::new(),
+		};
+		to_return.index_tiles = to_return.create_index_tiles();
+		to_return
+	}
+
+	fn create_index_tiles(&self) -> Vec<(usize, usize)> {
+		let mut to_return = Vec::new();
+		for i in (0..self.nb_tile()) {
+			let iter = self.goal_state.get_tiles().iter().enumerate();
+			for (tile_idx, tile) in iter {
+				if tile.to_nbr() == i as i32 {
+					to_return.push(self.goal_state.xy_out_of_index(tile_idx));
+					break ;
+				}
+			}
 		}
+		to_return
 	}
 
 	fn create_goal_state(size: usize) -> Board {
@@ -39,7 +60,6 @@ impl NPuzzle
 		}
 
 		//convert it to snail
-		println!("###for {:?}", size);
 		let mut x = 0i32;
 		let mut ix = 1i32;
 		let mut y = 0i32;
@@ -48,7 +68,6 @@ impl NPuzzle
 		let s = size as i32;
 		loop {
 			puzzle[(x + y * s) as usize] = cur;
-			println!("{:?}", x + y * s);
 			if cur == 0 {
 				break ;
 			}
@@ -59,10 +78,9 @@ impl NPuzzle
 				iy = ix;
 				ix = 0;
 			}
-			else if x + (y+iy) < (s * s + 1) &&
-					(y + iy == s as i32 ||
-					 					y + iy < 0 ||
-					 					(iy != 0 && puzzle[(x + (y+iy) * s) as usize] != -1)) {
+			else if y + iy == s as i32 ||
+ 					y + iy < 0 ||
+					(iy != 0 && puzzle[(x + (y+iy) * s) as usize] != -1) {
 				ix = -iy;
 				iy = 0;
 			}
@@ -174,6 +192,10 @@ impl NPuzzle
 
 	pub fn get_goal_state(&self) -> &Board {
 		&self.goal_state
+	}
+
+	pub fn get_index_tiles(&self) -> &Vec<(usize, usize)> {
+		&self.index_tiles
 	}
 
 	///Return true if the board is complete
