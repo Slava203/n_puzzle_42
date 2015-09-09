@@ -59,5 +59,31 @@ mod test
 			7 6 5"#;
 		one_misplaced_tiles_test(s, 2);
 	}
+
+	fn one_tiles_out_test(initial: &str, expected: i32) {
+		let np = NPuzzle::new_from_str(&initial.to_string()).unwrap();
+		let nbr = heuristic::tiles_out(np.get_initial_state(), &np);
+		println!("nbr {:?} expected {:?}", nbr, expected);
+		assert!(nbr == expected);
+	}
+
+	#[test]
+	fn test_tiles_out() {
+		let mut s = r#"3
+			1 2 3
+			8 0 4
+			7 6 5"#;
+		one_tiles_out_test(s, 0);
+		let mut s = r#"3
+			5 2 3
+			8 0 4
+			7 6 1"#;
+		one_tiles_out_test(s, 4);
+		let mut s = r#"3
+			1 2 3
+			8 0 5
+			7 6 4"#;
+		one_tiles_out_test(s, 2);
+	}
 }
 
