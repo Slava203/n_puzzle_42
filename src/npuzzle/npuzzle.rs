@@ -11,6 +11,10 @@ use std::io::prelude::*;
 use npuzzle::{Board};
 use std::io;
 
+fn is_odd(u: u32) -> bool {
+	u % 2 == 1
+}
+
 /// This structure represent a NPuzzle game instance.
 #[derive(Debug, Clone)]
 pub struct NPuzzle
@@ -79,7 +83,7 @@ impl NPuzzle
 				ix = 0;
 			}
 			else if y + iy == s as i32 ||
- 					y + iy < 0 ||
+					y + iy < 0 ||
 					(iy != 0 && puzzle[(x + (y+iy) * s) as usize] != -1) {
 				ix = -iy;
 				iy = 0;
@@ -211,6 +215,53 @@ impl NPuzzle
 			}
 		}
 		return true;
+	}
+
+	fn nb_inversions(board:&Board, i: usize) -> usize {
+		//ignore the free tile
+		if board.get_tiles()[i] == Tile::FREE {
+			return 0;
+		}
+
+		let slice = &board.get_tiles()[i..];
+		let num = board.get_tiles()[i].to_nbr();
+		let mut inversions = 0;
+		for tile in slice {
+			if *tile == Tile::FREE {
+				continue ;
+			}
+			if num > tile.to_nbr() {
+				inversions += 1;
+			}
+		}
+		inversions
+	}
+
+	fn nb_inversion_board(board: &Board) -> usize {
+		let mut inversions : usize = 0;
+		for i in (0..board.nb_tile()) {
+			inversions += NPuzzle::nb_inversions(board, i);
+		}
+		inversions
+	}
+
+	pub fn is_solvable(&self) -> bool {
+		//calculate number of inversion
+		let mut nb_inversion_start =
+				NPuzzle::nb_inversion_board(&self.initial_state);
+		let mut nb_inversion_goal =
+				NPuzzle::nb_inversion_board(&self.goal_state);
+
+		// In this case, the row of the '0' tile matters
+		if self.size % 2 == 0 {
+			let (x_init, y_init) = self.initial_state.free_coordinates();
+			let (x_goal, y_goal) = self.goal_state.free_coordinates();
+			nb_inversion_start +=
+					self.initial_state.index_out_of_xy(x_init, y_init) / self.size;
+			nb_inversion_goal +=
+					self.goal_state.index_out_of_xy(x_goal, y_goal) / self.size;
+		}
+		nb_inversion_start % 2 == nb_inversion_goal % 2
 	}
 }
 

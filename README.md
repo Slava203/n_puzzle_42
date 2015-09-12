@@ -6,3 +6,5 @@ Program to solve n puzzle (taquin) games (snail version) using the [A* algorithm
 ## Documentation
 
 [Heuristic for npuzzle](http://heuristicswiki.wikispaces.com/N+-+Puzzle)
+
+[Check for solvability of a puzzle. This is for the line version. The solution for the snail version is different (see NPuzzle::is_solvable)](http://www.cs.bham.ac.uk/~mdr/teaching/modules04/java2/TilesSolvability.html)

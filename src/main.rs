@@ -43,6 +43,10 @@ fn main() {
 		return ;
 	}
 	let np = np_from_option(&options);
+	if !np.is_solvable() {
+		println!("This puzzle is not solvable !");
+		return ;
+	}
 	let heuri = heuristic::from_option(options.heuristic);
 	let astar = AStar::solve(&np, &heuri);
     // println!("{}", np);

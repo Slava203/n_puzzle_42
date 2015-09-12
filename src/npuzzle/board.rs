@@ -135,6 +135,10 @@ impl Board
 	pub fn get_tiles(&self) -> &Vec<Tile> {
 		&self.tiles
 	}
+
+	pub fn free_coordinates(&self) -> (usize, usize) {
+		(self.x_free, self.y_free)
+	}
 }
 
 impl Display for Board
