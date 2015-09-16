@@ -2,7 +2,7 @@ use std::rc::Rc;
 use std::fmt;
 use algo::{AStarNode, HeuristicFn};
 use npuzzle::{NPuzzle, Tile, Action};
-use std::collections::BinaryHeap;
+use std::collections::{BinaryHeap, HashMap};
 
 // BAN for boxed A* Node
 type RcASN = Rc<AStarNode>;
@@ -10,7 +10,7 @@ type RcASN = Rc<AStarNode>;
 pub struct AStar
 {
 	board:		NPuzzle,
-	closed_set:	Vec<RcASN>,
+	closed_set:	HashMap<RcASN, ()>,
 	open_set:	BinaryHeap<RcASN>,
 	result:		Option<RcASN>,
 	nb_turn:	u32,
@@ -21,12 +21,10 @@ impl AStar
 {
 	/// Return true if the node has already been tested.
 	fn is_in_closed_set(&self, node: &AStarNode) -> bool {
-		for closed_state in self.closed_set.iter() {
-			if closed_state.board() == node.board() {
-				return true;
-			}
+		match self.closed_set.get(node) {
+			Some(_)	=> true,
+			None	=> false,
 		}
-		return false;
 	}
 
 	/// Return a list of all the states which
@@ -70,7 +68,7 @@ impl AStar
 		self.open_set.push(root);
 		while !self.open_set.is_empty() {
 			self.nb_turn += 1;
-			println!("\n###nb_turn {:?}", self.nb_turn);
+			// println!("\n###nb_turn {:?}", self.nb_turn);
 			let current = self.open_set.pop().unwrap();
 			// println!("current {} open_set {} board :\n{}",
 			// 	current, self.open_set_str(), current.board());
@@ -83,7 +81,7 @@ impl AStar
 			let mut next = self.open_neighbours(current.clone(), game, heu);
 			// println!("open_neighbours {:?}", next);
 			// self.open_set.clear(); // TO DELETE
-			self.closed_set.push(current);
+			self.closed_set.insert(current, ());
 			self.nb_state += next.len() as u32;
 			self.open_set.extend(next);
 			// println!("new open_set {:?}", self.open_set_str());
@@ -97,7 +95,7 @@ impl AStar
 		let mut to_return = AStar {
 			board:		game.clone(),
 			open_set:	BinaryHeap::new(),
-			closed_set:	Vec::new(),
+			closed_set:	HashMap::new(),
 			result:		None,
 			nb_turn:	0,
 			nb_state:	0,
@@ -111,7 +109,6 @@ impl AStar
 	}
 
 	pub fn print_result(&self) {
-		println!("Result calculated in {} turn", self.nb_turn);
 		match self.result {
 			Some(ref x) => {
 				let move_list = x.move_list();
@@ -132,3 +129,4 @@ impl AStar
 		}
 	}
 }
+

@@ -9,7 +9,7 @@ pub type ParentType = Option<Rc<AStarNode>>;
 // Type for recursive compute_board
 // type RecBoard = Rc<Board>;
 
-#[derive(Clone)]
+#[derive(Clone, Hash)]
 pub struct AStarNode
 {
 	///action made by this node

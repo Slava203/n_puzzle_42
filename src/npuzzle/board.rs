@@ -5,7 +5,7 @@ use std::fmt::{Formatter, Display, Error};
 use npuzzle::{Tile, Action};
 use npuzzle::parser;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash)]
 pub struct Board
 {
 	size:		usize,

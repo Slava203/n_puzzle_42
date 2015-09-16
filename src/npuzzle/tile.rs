@@ -2,7 +2,7 @@ use term_painter::Color::*;
 use std::fmt::{Formatter, Display, Error};
 use term_painter::ToStyle;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Hash)]
 pub enum Tile {
     NUMBER(i32),
     FREE,
