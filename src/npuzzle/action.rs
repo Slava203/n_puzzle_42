@@ -1,5 +1,3 @@
-use std::fmt;
-
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub enum Action {
     Up,
@@ -43,7 +41,7 @@ impl Display for Action
 {
 	fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
 	{
-		write!(f, "{:?}", self);
+		let _ = write!(f, "{:?}", self);
 		Ok(())
 	}
 }

@@ -1,7 +1,6 @@
 use std::rc::Rc;
-use std::fmt;
 use algo::{AStarNode, HeuristicFn};
-use npuzzle::{NPuzzle, Tile, Action};
+use npuzzle::{NPuzzle, Action};
 use std::collections::{BinaryHeap, HashMap};
 
 // BAN for boxed A* Node
@@ -32,33 +31,19 @@ impl AStar
 			game: &NPuzzle,
 			heu: &HeuristicFn)
 				-> Vec<RcASN> {
-		// println!("open_neighbours current {:?} board {}", current, current.board());
 		let mut to_return = Vec::new();
 		for act in Action::list_all() {
 			if current.board().action_allowed(act.clone()) {
-				// println!("action_allowed {:?}", act);
 				let new_node = Rc::new(
 						AStarNode::new(act, Some(current.clone()), game, heu));
 				// TODO test if new_node in open_set with lower cost
 				// TODO jump only if is_in_closed_set && ttl_cost < new_node.ttl_cost ?
 				if self.is_in_closed_set(&*new_node) {
-					// println!("is in closed_set {}", new_node);
 					continue ;
 				}
-				// println!("push {}", new_node);
 				to_return.push(new_node);
 			}
 		}
-		to_return
-	}
-
-	fn open_set_str(&self) -> String {
-		let mut to_return = String::new();
-		to_return = to_return + "[";
-		for i in self.open_set.iter() {
-			to_return = to_return + &format!("{} ", i)[..];
-		}
-		to_return = to_return + "]";
 		to_return
 	}
 
@@ -68,24 +53,17 @@ impl AStar
 		self.open_set.push(root);
 		while !self.open_set.is_empty() {
 			self.nb_turn += 1;
-			// println!("\n###nb_turn {:?}", self.nb_turn);
 			let current = self.open_set.pop().unwrap();
-			// println!("current {} open_set {} board :\n{}",
-			// 	current, self.open_set_str(), current.board());
 
 			// victory condition
 			if game.is_complete(current.board()) {
 				return Some(current);
 			}
 
-			let mut next = self.open_neighbours(current.clone(), game, heu);
-			// println!("open_neighbours {:?}", next);
-			// self.open_set.clear(); // TO DELETE
+			let next = self.open_neighbours(current.clone(), game, heu);
 			self.closed_set.insert(current, ());
 			self.nb_state += next.len() as u32;
 			self.open_set.extend(next);
-			// println!("new open_set {:?}", self.open_set_str());
-			// if self.nb_turn > 50 {break ;}
 		}
 		None
 	}
@@ -102,10 +80,6 @@ impl AStar
 		};
 		to_return.result = to_return.execute(game, heu);
 		to_return
-	}
-
-	pub fn get_result(&self) -> &Option<RcASN> {
-		&self.result
 	}
 
 	pub fn print_result(&self) {

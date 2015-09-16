@@ -12,17 +12,18 @@ impl Display for IncorrectBoardError
 {
 	fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
 	{
-		write!(f, "n puzzle board incorrect: ");
+		let _ = write!(f, "n puzzle board incorrect: ");
 		match *self {
-			IncorrectBoardError::WrongNumberOfTile{
-					found: found, expected: expected
-			}	=>
-				write!(f, "wrong number of tile, expected {}, found {}",
-						expected, found),
-			IncorrectBoardError::OutOfBoundTile{tile: tile}		=>
-				write!(f, "tile out of bound {}", tile),
-			IncorrectBoardError::DuplicatedTile{tile: tile}		=>
-				write!(f, "duplicated tile {}", tile),
+			IncorrectBoardError::WrongNumberOfTile{found, expected}	=>{
+				let _ = write!(f, "wrong number of tile, expected {}, found {}",
+						expected, found);
+			},
+			IncorrectBoardError::OutOfBoundTile{tile}		=> {
+				let _ = write!(f, "tile out of bound {}", tile);
+			},
+			IncorrectBoardError::DuplicatedTile{tile}		=> {
+				let _ = write!(f, "duplicated tile {}", tile);
+			},
 		};
 		Ok(())
 	}
@@ -55,10 +56,14 @@ impl Display for ParseError
 {
 	fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
 	{
-		write!(f, "Parse error: ");
+		let _ = write!(f, "Parse error: ");
 		match *self {
-			ParseError::ParseSize	=> write!(f, "cannot parse size"),
-			ParseError::IncorrectBoard(ref err)	=> write!(f, "{}", err),
+			ParseError::ParseSize	=> {
+				let _ = write!(f, "cannot parse size");
+			},
+			ParseError::IncorrectBoard(ref err)	=> {
+				let _ = write!(f, "{}", err);
+			},
 		};
 		Ok(())
 	}

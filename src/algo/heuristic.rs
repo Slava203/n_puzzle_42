@@ -1,7 +1,7 @@
 //! A A* heuristic is a way to evaluate how much it will cost to evolve the
 //! current state to the goal state. This is an approximation.
 
-use npuzzle::{Board, Tile, NPuzzle};
+use npuzzle::{Board, NPuzzle};
 use options;
 
 pub type HeuristicFn = fn(current_state: &Board, game: &NPuzzle) -> i32;

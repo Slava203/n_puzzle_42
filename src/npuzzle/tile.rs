@@ -32,13 +32,10 @@ impl Display for Tile
 {
 	fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
 	{
-		let mut to_return = Ok(());
 		match self {
-			&Tile::NUMBER(x)	=> to_return =
-									write!(f, "{:<4}", x),
-			&Tile::FREE			=> to_return =
-									write!(f, "{}", Magenta.paint("X   ")),
-		}
-		to_return
+			&Tile::NUMBER(x)	=> {let _ = write!(f, "{:<4}", x);},
+			&Tile::FREE			=> {let _ = write!(f, "{}", Magenta.paint("X   "));},
+		};
+		Ok(())
 	}
 }

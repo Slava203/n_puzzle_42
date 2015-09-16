@@ -1,9 +1,9 @@
 use tools::fn_str;
-use npuzzle::errors::{IncorrectBoardError, ParseError};
-use npuzzle::{NPuzzle, Tile, Board};
+use npuzzle::errors::{ParseError};
+use npuzzle::{Tile, Board};
 
 impl Board {
-	fn split_one_line(line: &str, size: usize) -> Vec<i32> {
+	fn split_one_line(line: &str) -> Vec<i32> {
 		line.split(' ')
 				.map(|x| x.trim())
 				.filter(|x| x.len() > 0)
@@ -26,7 +26,7 @@ impl Board {
 
 		// split lines into integer
 		for line in lines {
-			let ints : Vec<i32> = Board::split_one_line(line, size);
+			let ints : Vec<i32> = Board::split_one_line(line);
 			let mut tiles = ints.iter().map(|x| Tile::from_nbr(*x)).collect();
 			board.append_tiles(&mut tiles);
 		}

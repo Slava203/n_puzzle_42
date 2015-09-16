@@ -1,19 +1,14 @@
-use std::str::FromStr;
 use rand::Rng;
 use rand;
 use std::fmt::{Formatter, Display, Error};
 use npuzzle::tile::{Tile};
-use npuzzle::errors::{IncorrectBoardError, ParseError};
+use npuzzle::errors::{ParseError};
 use std::path::Path;
 use std::error;
 use std::fs::File;
 use std::io::prelude::*;
 use npuzzle::{Board};
 use std::io;
-
-fn is_odd(u: u32) -> bool {
-	u % 2 == 1
-}
 
 /// This structure represent a NPuzzle game instance.
 #[derive(Debug, Clone)]
@@ -59,7 +54,7 @@ impl NPuzzle
 		let mut puzzle = Vec::with_capacity(size * size);
 
 		//create a list of -1
-		for i in (0..(size * size)) {
+		for _ in (0..(size * size)) {
 			puzzle.push(-1);
 		}
 
@@ -154,6 +149,7 @@ impl NPuzzle
 		NPuzzle::board_res_into_npuzzle(Board::parse_with_size(&s))
 	}
 
+	#[allow(dead_code)]
 	pub fn new_from_str(s: &String)
 			-> Result<NPuzzle, ParseError> {
 		NPuzzle::board_res_into_npuzzle(Board::parse_with_size(&s))
@@ -184,10 +180,6 @@ impl NPuzzle
 	/// Return the number of tile in the npuzzle board including the empty tile.
 	pub fn nb_tile(&self) -> usize {
 		self.size * self.size
-	}
-
-	pub fn get_size(&self) -> usize {
-		self.size
 	}
 
 	pub fn get_initial_state(&self) -> &Board {
@@ -269,7 +261,7 @@ impl Display for NPuzzle
 {
 	fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
 	{
-		write!(f, "{}", self.initial_state);
+		let _ = write!(f, "{}", self.initial_state);
 		Ok(())
 	}
 }

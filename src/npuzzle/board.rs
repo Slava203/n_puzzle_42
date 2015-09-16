@@ -1,9 +1,6 @@
-use std::{ptr};
-use std::str::FromStr;
-use npuzzle::errors::{IncorrectBoardError, ParseError};
+use npuzzle::errors::{IncorrectBoardError};
 use std::fmt::{Formatter, Display, Error};
 use npuzzle::{Tile, Action};
-use npuzzle::parser;
 
 #[derive(Debug, Clone, Hash)]
 pub struct Board

@@ -10,7 +10,7 @@ mod options;
 
 use npuzzle::{NPuzzle};
 use options::{Options, Input};
-use algo::{AStar, HeuristicFn};
+use algo::{AStar};
 use algo::heuristic;
 
 fn np_from_option(opts: &Options) -> NPuzzle {

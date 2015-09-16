@@ -1,5 +1,4 @@
 use std::str::FromStr;
-use std::convert::From;
 use getopts;
 use std::env;
 
@@ -44,7 +43,7 @@ pub struct Options
 
 impl Options
 {
-	fn cli_collect(args: &Vec<String>) -> getopts::Options {
+	fn cli_collect(_: &Vec<String>) -> getopts::Options {
 	    let mut opts = getopts::Options::new();
 	    opts.optopt("f", "file", "set intput file name", "NAME");
 	    opts.optopt("r", "random",
@@ -64,8 +63,8 @@ impl Options
 			let size_str = cli_matches.opt_str("r").unwrap();
 			let size_res = size_str.parse::<usize>();
 			match size_res {
-				Ok(m) => return Input::Random(m),
-				Err(err) => panic!(
+				Ok(m)  => return Input::Random(m),
+				Err(_) => panic!(
 						"Cannot parse the --random option to usigned int"),
 			}
 		}
